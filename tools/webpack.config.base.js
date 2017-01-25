@@ -3,11 +3,12 @@ var name = packageJSON["name"];
 
 module.exports = {
   entry: {
-    js:"./src/main.js",
+    "MDIcon.bundle":"./src/main.js",
+    "constructor.bundle": "./src/constructor/IconApp.js"
   },
   output: {
     path: "./dist",
-    filename: name+".bundle.js"
+    filename: "[name].js"
   },
   module: {
     loaders: [{

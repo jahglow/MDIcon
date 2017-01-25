@@ -3,42 +3,37 @@
  */
 
 class IconStripper {
-  constructor(iconCategories = ['Action','Alert','AV','Communication','Content','Device','Editor','File','Hardware','Image','Maps','Navigation','Notification','Places','Social','Toggle']){
+  constructor(iconset,callback){
     this.iconset = {};
-    iconCategories.forEach(iconset=>{
-      this.requestSource(iconset).then(response=>this.parseResponse(response,iconset))
-    });
+    this.requestSource(iconset)
+      .then(response=>this.parseResponse(response,iconset))
+      .then(result=>callback(result))
   }
+
   parseResponse(response,iconset){
-    this.iconset[iconset]={};
     let mediator = document.createElement('div');
-    mediator.innerHTML = response;
-    this.iconset[iconset].icons=mediator.querySelector('svg');
-    this.iconset[iconset].file=this.stripper(this.iconset[iconset].icons);
-    mediator.innerHTML = '';
-    mediator.appendChild(this.generateOutput(iconset));
+    response= response.toString();//console.log(response);
+    console.log(typeof response);
+    let pattern = /<symbol(.*)id="(.*?)"(.*?)>({\r*|\n*|.*?)<\/symbol>/gi, matched;
+    let result = {};
+    while((matched = pattern.exec(response))!=null){
+      result[matched[2]] = matched[4];
+    }
+    let file = this.stripper(result),
+        blobURL = this.blobFile(file);
+    this.iconset = {file, blobURL};
+    return this.iconset
 
-    document.body.appendChild(mediator);
-    hljs.highlightBlock(mediator);
   }
 
-  generateOutput(key){
-    let heading = document.createElement('h4');
-    heading.className = 'heading';
-    heading.textContent = key;
-    let pre = document.createElement('pre');
-    let code = document.createElement('code');
-    code.classList.add('javascript');
-    code.textContent = this.iconset[key].file;
-    pre.appendChild(code);
-
-    let df = document.createDocumentFragment();
-    df.appendChild(heading);
-    df.appendChild(pre);
-
-    return df
+  blobFile(str){
+    let blob = new Blob([str],{type:'application/javascript'});
+    return window.URL.createObjectURL(blob);
   }
 
+  generateOutput(file){
+    return `<pre><code class="javascript">${file}</code></pre>`
+  }
 
   requestSource(iconCategory){
     let url = `https://rawgit.com/google/material-design-icons/master/sprites/svg-sprite/svg-sprite-${iconCategory.toLowerCase()}-symbol.html`;
@@ -60,13 +55,20 @@ class IconStripper {
     });
   }
 
-  stripper(SVGElement){
+  stripper(icons){
     let str = `import React from 'react'; \n \n`;
-    [...SVGElement.children].forEach(symbol=>{
-      let id = (/(.+?)_24/gi).exec(symbol.id)[1];
-      let goodPath = symbol.innerHTML.replace(/><\/(.+?)>/gi,' />');
-      str+=`export const ${id} = ${symbol.children.length==1?goodPath:'<g>'+goodPath+'</g>'}; \n`;
+    //[...SVGElement.children].forEach(symbol=>{
+    Object.keys(icons).forEach(icon=>{
+      let id = (/(.+?)_24/gi).exec(icon)[1];
+      let rawIcon = icons[icon];
+      let goodPath = rawIcon//.replace(/><\/{path|circle}>/gi,' />')           // replace `</path>` with `/>`
+                                     .replace(/fill-opacity/gi,'fillOpacity') // replace dashed-attributes with camelCase
+                                     .replace(/fill="(.+?)"/gi,'');           // remove explicit fills
+      str+=`export const ${id} = ${goodPath.match(/[/*]/g).length==1?goodPath:'<g>'+goodPath+'</g>'}; \n`;
+      //str+=`export const ${id} = ${rawIcon.children.length==1?goodPath:'<g>'+goodPath+'</g>'}; \n`;
     });
-    return str + '\n';
+    return str;
   }
 }
+
+export default IconStripper;
