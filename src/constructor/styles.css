@@ -1,3 +1,8 @@
+:root{
+  --app-width: 1161px;
+  --bottom-sheet-height:56px
+}
+
 *{
   font-family: RobotoDraft, Roboto, sans-serif;
   color: rgba(0,0,0,.53);
@@ -15,6 +20,7 @@
   justify-content: center;
   align-items: center;
   overflow:hidden;
+  margin:8px;
 
   &--icon{
     align-items: center;
@@ -42,10 +48,11 @@
 .IconSection{
   display:flex;
   width:100%;
-  padding: 32px 0;
+  padding: 56px 0;
   border-top: 1px solid #ccc;
   flex-direction:column;
-  max-width:1024px;
+  max-width:var(--app-width);
+  margin:0 8px;
 
   &--header{
     height:32px;
@@ -75,7 +82,7 @@
     background-color: transparent;
     transition: background-color 0.25s ease-in-out;
     & svg{
-      transition:  fill 0.15s ease-in-out;
+      transition: fill 0.15s ease-in-out;
     }
     &:hover{
       background-color:rgba(0,0,0,.32);
@@ -87,10 +94,93 @@
   &--code{
     overflow: scroll;
     width: 100%;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
   }
 }
 .IconApp{
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  & pre {
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 2px;
+    background-color:rgba(0,0,0,0.15);
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  }
+  &--bottom-sheet-container{
+    width:100%;
+    height:var(--bottom-sheet-height);
+    position:fixed;
+    bottom:calc(-1 * var(--bottom-sheet-height));
+    display:flex;
+    flex-direction:row;
+    justify-content: center;
+    opacity:0;
+    transition: bottom 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.visible{
+      bottom:0;
+      opacity:1;
+    }
+
+  }
+  &--bottom-sheet{
+    max-width:var(--app-width);
+    width:100%;
+    height:var(--bottom-sheet-height);
+    background-color: #d9d9d9;
+    display:flex;
+    flex-direction:row;
+    padding:8px;
+    box-sizing:border-box;
+
+    & pre{
+      display: flex;
+      flex: 1;
+      height:calc( var(--bottom-sheet-height) - 8 * 2);
+      position: relative;
+      overflow: hidden;
+    }
+    & textarea {
+      height:calc( var(--bottom-sheet-height) - 8 * 2);
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      width:100%;
+      position: relative;
+      background:transparent;
+      border:0;
+      outline:0;
+      resize:none;
+      font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    }
+  }
+  &--description{
+    width:100%;
+    max-width:var(--app-width);
+    box-sizing:border-box;
+    padding:16px;
+    & h2 {
+      font-size: 24px;
+    }
+    & p {
+      display:block;
+      font-size:13px;
+      font-weight: normal;
+      line-height: 160%;
+    }
+    & code {
+      border-radius:2px;
+      background-color: rgba(0,0,0,.16);
+      padding: 2px 4px;
+      font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    }
+  }
+  &--copy{
+    height:calc( var(--bottom-sheet-height) - 8 * 2);
+    width:calc( var(--bottom-sheet-height) - 8 * 2);
+  }
 }
+

@@ -1,7 +1,3 @@
-/**
- * Created by IvanP on 23.01.2017.
- */
-
 class IconStripper {
   constructor(iconset,callback){
     this.iconset = {};
@@ -13,7 +9,6 @@ class IconStripper {
   parseResponse(response,iconset){
     let mediator = document.createElement('div');
     response= response.toString();//console.log(response);
-    console.log(typeof response);
     let pattern = /<symbol(.*)id="(.*?)"(.*?)>({\r*|\n*|.*?)<\/symbol>/gi, matched;
     let result = {};
     while((matched = pattern.exec(response))!=null){
@@ -31,20 +26,11 @@ class IconStripper {
     return window.URL.createObjectURL(blob);
   }
 
-  generateOutput(file){
-    return `<pre><code class="javascript">${file}</code></pre>`
-  }
-
   requestSource(iconCategory){
     let url = `https://rawgit.com/google/material-design-icons/master/sprites/svg-sprite/svg-sprite-${iconCategory.toLowerCase()}-symbol.html`;
     return this.constructor.promiseRequest(url);
   }
 
-  /**
-   * Creates an XHR wrapped in a Promise
-   * @param {!String} URL - url to send a `GET` request to
-   * @return {Promise} Returns a then-able promise with `XMLHttpRequest.responseText`
-   * */
   static promiseRequest(URL){
     return new Promise((resolve,reject)=>{
       let xhr = new XMLHttpRequest();
