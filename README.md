@@ -5,6 +5,10 @@
 * `size` - **[Number,optional] default(`24`)** icon width/height (which equals height since all MD icons have square viewbox). Any of `18|24|36|48` is advised
 * `fill` - **[String,optional] default(`rgba(0,0,0,.85)`)** imported icon definition (jsx) if you prefer using children and a closing tag in JSX rather than an icon attribute
 
+### Installation
+
+Type `npm install --save jahglow/MDIcon` in your terminal.
+
 ## Material Icons: [React Import Generator](https://jahglow.github.io/MDIcon/constructor)
 
 This is an Import generator that makes using Google Material Icons easy. Instead of going to their site and downloading an icon each time you need to include it in your project,
