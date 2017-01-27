@@ -23,4 +23,7 @@ module.exports = {
       '.js',
     ],
   },
+  externals:{
+    'react':'React'
+  }
 };
