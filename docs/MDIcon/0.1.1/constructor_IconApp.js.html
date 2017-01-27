@@ -46,8 +46,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Test from './test'
 
-import * as assets from '../icon-bundle';
-const {MDIcon, ...icons} = assets;
+import * as icons from '../icon-bundle';
+import {MDIcon} from '../MDIcon';
 
 const iconsets = ['Action','Alert','AV','Communication','Content','Device','Editor','File','Hardware','Image','Maps','Navigation','Notification','Places','Social','Toggle'];
 
@@ -93,20 +93,11 @@ export class IconSection extends React.Component {
     this.viewIcon = icons.action.ic_view_module;
     this.downloadIcon = icons.file.ic_file_download;
     this.switchViewAction = this.switchViewAction.bind(this);
-    this.fileReady = this.fileReady.bind(this);
-    let iconstripper = new IconStripper(this.props.iconset,this.fileReady);
+
     this.state = {
       iconMode:true,
-      code:'',
-      downloadURL:'#',
       height: 'auto'
     }
-  }
-  fileReady(result){
-    this.setState({
-      code:result.file,
-      downloadURL: result.blobURL
-    })
   }
 
   render(){
@@ -115,7 +106,7 @@ export class IconSection extends React.Component {
     ) : (
       &lt;div className="IconSection--code" style={{height:this.state.height}}>
         &lt;pre>
-          &lt;code className="javascript">{this.state.code}&lt;/code>
+          &lt;code className="javascript">{this.props.code}&lt;/code>
         &lt;/pre>
       &lt;/div>
     );
@@ -125,14 +116,14 @@ export class IconSection extends React.Component {
         &lt;div className="IconSection--header">
           &lt;div className="IconSection--header-title">{iconsets.filter(iconset=>this.props.iconset==iconset.toLowerCase())[0]}&lt;/div>
           &lt;div className="IconSection--header-buttons">
-            &lt;div className="IconSection--download-code"
+            &lt;div
                  title={`Download relevant ${this.props.iconset}.js`}>
-              &lt;a href={this.state.downloadURL} download={`${this.props.iconset}.js`}>&lt;MDIcon fill="rgba(0,0,0,.53)" icon={this.state.code.length>0 ? this.downloadIcon : null} />&lt;/a>
+              &lt;a className="IconApp--action-icon" href={this.props.downloadURL} download={`${this.props.iconset}.js`}>&lt;MDIcon fill="rgba(0,0,0,.53)" icon={this.props.code.length>0 ? this.downloadIcon : null} />&lt;/a>
             &lt;/div>
-            &lt;div className="IconSection--view"
+            &lt;div className="IconApp--action-icon"
                  onClick={this.switchViewAction}
                  title={`View ${this.state.iconMode? 'code' : 'icons'}`}>
-              &lt;MDIcon fill="rgba(0,0,0,.53)" icon={ this.state.iconMode ? ( this.state.code.length>0 ? this.codeIcon : null ) : this.viewIcon } />
+              &lt;MDIcon fill="rgba(0,0,0,.53)" icon={ this.state.iconMode ? ( this.props.code.length>0 ? this.codeIcon : null ) : this.viewIcon } />
             &lt;/div>
           &lt;/div>
         &lt;/div>
@@ -148,16 +139,40 @@ export class IconSection extends React.Component {
   }
 }
 
+IconSection.defaultProps={
+  downloadURL:'#',
+  code:''
+};
+
+
+
 export class IconApp extends React.Component {
   constructor(props){
     super(props);
     this.iconClickAction = this.iconClickAction.bind(this);
     this.copyCodeAction = this.copyCodeAction.bind(this);
+    this.downloadIconsAction = this.downloadIconsAction.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+
+    this.fileReady = this.fileReady.bind(this);
+    // generate updated code for iconsets
+    this.iconsets = {};
+    // define default state for iconsets
+    let stateIconsets = {};
+    let _iconsets = {};
+    iconsets.forEach(iconset=>{
+      stateIconsets[iconset.toLowerCase()] = {downloadURL:'',code:''};
+    });
+
     this.state = {
       selected: {},
       outputVisible:false,
-      code:''
-    }
+      iconsets:stateIconsets,
+      root:'./src'
+    };
+    iconsets.forEach(iconset=>{
+      new IconStripper(iconset.toLowerCase(),this.fileReady);
+    });
   }
   /**
    * @param {Object} iconset
@@ -169,6 +184,33 @@ export class IconApp extends React.Component {
       icon: iconset[iconName]
     }))
   }
+
+  /**
+   * What happens when the `root` input changes
+   * */
+  handleChange(event) {
+    let value = event.target.value;
+    this.setState(prevState=>{return{
+      root: value,
+      code: this.serializeCode(prevState.selected,value)
+    }});
+  }
+
+  /**
+   * When icons are downloaded
+   * */
+  fileReady(iconset,result){
+    this.setState(prevState=>{
+      let iSets = prevState.iconsets;
+      iSets[iconset]={
+        code:result.file.str,
+        downloadURL: result.blobURL
+      };
+      this.iconsets[iconset]=result.file.obj;
+      return {iconsets:iSets}
+    })
+  }
+
 
   /**
    * @param {String} icon - icon name which is a variable name in the file
@@ -187,23 +229,14 @@ export class IconApp extends React.Component {
           console.log(iconSet.length, iconSet);
           sel[iconset].length==0 &amp;&amp; delete sel[iconset]; // delete empty iconset
         }
-      } else { //create iconset and assign first icon
+      } else if(iconset){ //create iconset and assign first icon
         sel[iconset] = [icon];
       }
 
       let outputVisible = Object.keys(sel).length>0, code;
 
+      code = this.serializeCode(sel, prevState.root);
 
-      if(outputVisible){
-        let serialized = Object.keys(sel).map(key=>{
-          let joined_values = sel[key].join(', ');
-          return `import {${joined_values}} from 'MDIcon/src/icons/${key}';`
-        }).join('\n');
-        code = `import {MDIcon} from 'MDIcon';\n${serialized}`
-      } else {
-        code = ''
-      }
-      console.log(code);
       return {
         selected:sel,
         outputVisible,
@@ -212,6 +245,14 @@ export class IconApp extends React.Component {
     })
   }
 
+  serializeCode(source,root){
+    let code = '';
+    if(Object.keys(source).length>0){
+      let serialized = Object.keys(source).map(key=>source[key].join(', ')).join(', ');
+      code = `import MDIcon from 'MDIcon';\nimport {${serialized}} from '${root}/icons'`
+    }
+    return code
+  }
   copyCodeAction(){
     let code = this.state.code;
     this.textarea.select();
@@ -223,18 +264,51 @@ export class IconApp extends React.Component {
     }
   }
 
+  downloadIconsAction(){
+    let link = document.createElement('a');
+    link.download = 'icons.js';
+    let selected = this.state.selected;
+    console.log(selected);
+    if(Object.keys(selected).length != 0){
+      let str = this.serializeIcons(selected),
+          blob = new Blob([str],{type:'application/javascript'});
+      link.href = window.URL.createObjectURL(blob);
+      link.click();
+    } else {
+      alert('You haven\'t selected any icons, there\'s nothing to download in the icon package');
+    }
+  }
+
+  /**
+   * turn selected icons into a file
+   * */
+  serializeIcons(iSets){
+    let arr=[];
+    Object.keys(iSets).forEach(iconset=>{
+      iSets[iconset].forEach(icon=>arr.push(
+        `export const ${icon} = ${this.iconsets[iconset][icon]};`
+      ))
+    });
+    return arr.join('\n');
+  }
+
   render(){
     return (
       &lt;div className="IconApp">
         {this.description()}
-        {iconsets.map(iconset=>(
+        {iconsets.map(iconset=>{
+          iconset = iconset.toLowerCase();
+          return (
           &lt;IconSection
-            key={iconset.toLowerCase()}
-            iconset={iconset.toLowerCase()}
-            icons={this.prepareIcons(icons[iconset.toLowerCase()])}
+            key={iconset}
+            iconset={iconset}
+            icons={this.prepareIcons(icons[iconset])}
             iconClickAction={this.iconClickAction}
+            downloadURL={this.state.iconsets[iconset].downloadURL}
+            code={this.state.iconsets[iconset].code}
           />
-        ))}
+        )
+        })}
         {this.bottomSheet()}
       &lt;/div>
     )
@@ -245,22 +319,30 @@ export class IconApp extends React.Component {
       &lt;div className="IconApp--description">
         &lt;h2>Material Icons: React Import Generator&lt;/h2>
         &lt;p>
-          This is an Import generator that makes using Google Material Icons easy. Instead of going to their site and downloading an icon each time you need to include it in your project,
-          you may use this tool that will return you a valid code for importing only necessary icons in your project. Basically each icon is a &lt;code>MDIcon&lt;/code> React component,
-          that you may configure with parameters:
-          &lt;ul>
-            &lt;li>&lt;code>icon&lt;/code> - imported icon definition (jsx) - this is where this tool comes handy, it lets you import and use the definitions here&lt;/li>
-            &lt;li>&lt;code>children&lt;/code> - imported icon definition (jsx) if you prefer using children and a closing tag in JSX rather than an icon attribute&lt;/li>
-            &lt;li>&lt;code>size&lt;/code> - &lt;b>[Number,optional] default(&lt;code>24&lt;/code>)&lt;/b> icon width/height (which equals height since all MD icons have square viewbox). Any of 18|24|36|48 is advised&lt;/li>
-            &lt;li>&lt;code>fill&lt;/code> - &lt;b>[String,optional] default(&lt;code>'rgba(0,0,0,.85)'&lt;/code>)&lt;/b>imported icon definition (jsx) if you prefer using children and a closing tag in JSX rather than an icon attribute&lt;/li>
-          &lt;/ul>
+          This is an Import Generator that makes using Google Material Icons easy. Instead of going to &lt;a href="https://material.io/icons">their site&lt;/a> and downloading one icon at a time every time you need to include it in your project,
+          use this tool that will return you a valid code for importing only necessary icons in your project as well as a bundle with the icons you select. This can be achieved in four simple steps:
         &lt;/p>
+        &lt;ol>
+          &lt;li>Select all icons you need for your project&lt;/li>
+          &lt;li>In the bottom sheet specify the path from root where you'll place the icons bundle. Note that the path is relative to the document where you'll use the icons.&lt;/li>
+          &lt;li>Click the &lt;code>download&lt;/code> icon to download the bundle. Place it according to the path you've specified in step 2.&lt;/li>
+          &lt;li>Click the &lt;code>copy&lt;/code> icon to copy the import code. Paste it into your file where you'll use the icons. We've already destructured the import for you&lt;/li>
+        &lt;/ol>
+        &lt;p>
+          Basically each icon in the bundle is an &lt;code>MDIcon&lt;/code> React component, that you may configure with parameters:
+        &lt;/p>
+        &lt;ul>
+          &lt;li>&lt;code>icon&lt;/code> - imported icon definition (jsx) - this is where this tool comes handy, it lets you import and use the definitions here&lt;/li>
+          &lt;li>&lt;code>children&lt;/code> - imported icon definition (jsx) if you prefer using children and a closing tag in JSX rather than an icon attribute&lt;/li>
+          &lt;li>&lt;code>size&lt;/code> - &lt;b>[Number,optional] default(&lt;code>24&lt;/code>)&lt;/b> icon width/height (which equals height since all MD icons have square viewbox). Any of 18|24|36|48 is advised&lt;/li>
+          &lt;li>&lt;code>fill&lt;/code> - &lt;b>[String,optional] default(&lt;code>'rgba(0,0,0,.85)'&lt;/code>)&lt;/b>imported icon definition (jsx) if you prefer using children and a closing tag in JSX rather than an icon attribute&lt;/li>
+        &lt;/ul>
         &lt;p>
           Select the necessary icons below, copy the code (via copy button) and paste it in your react document file
         &lt;/p>
         &lt;p>
           If you want to see what it exactly looks like from inside in ES6, then press a code button next to each section. If you feel like this project is outdated (there are missing icons that are available on
-          &lt;a href="https://material.io/icons">MD icons site&lt;/a>) then feel free to fork it and press the download button next to the section you want to update. It will initiate a download for the file that you may
+          &lt;a href="https://material.io/icons"> MD icons site&lt;/a>) then feel free to fork it and press the download button next to the section you want to update. It will initiate a download for the file that you may
           replace the outdated one with at &lt;code>/src/icons/&lt;/code>.&lt;br />If you want to  host the same util in your fork on gh-pages with the updated icons, when you build the project make sure you include
           &lt;code>constructor.bundle.js&lt;/code> and &lt;code>MDIcon.css&lt;/code> into the &lt;code>/docs/MDIcon/[version_number]/constructor&lt;/code>.
         &lt;/p>
@@ -271,8 +353,15 @@ export class IconApp extends React.Component {
     return  (
       &lt;div className={`IconApp--bottom-sheet-container ${this.state.outputVisible?'visible':''}`}>
         &lt;div className="IconApp--bottom-sheet">
-          &lt;textarea rows="2" ref={t=>this.textarea=t} readOnly={true} value={this.state.code}>&lt;/textarea>
-          &lt;div className="IconApp--copy IconSection--download-code" title="Copy import code to clipboard" onClick={this.copyCodeAction}>&lt;MDIcon fill="rgba(0,0,0,.53)" icon={icons.content.ic_content_copy} />&lt;/div>
+          &lt;div className="IconApp--code">
+            &lt;label>Specify the path where you'll place icons file&lt;/label>
+            &lt;input type="text" id="inp" value={this.state.root} onChange={this.handleChange} />
+            &lt;textarea rows="2" ref={t=>this.textarea=t} readOnly={true} value={this.state.code} />
+          &lt;/div>
+          &lt;div className="IconApp--actions">
+            &lt;div className="IconApp--action-icon IconApp--copy" title="Download icons bundle" onClick={this.downloadIconsAction}>&lt;MDIcon fill="rgba(0,0,0,.53)" icon={icons.file.ic_file_download} />&lt;/div>
+            &lt;div className="IconApp--action-icon IconApp--copy" title="Copy import code to clipboard" onClick={this.copyCodeAction}>&lt;MDIcon fill="rgba(0,0,0,.53)" icon={icons.content.ic_content_copy} />&lt;/div>
+          &lt;/div>
         &lt;/div>
       &lt;/div>
     )
@@ -293,7 +382,7 @@ ReactDOM.render(&lt;IconApp/>,document.getElementById('root'));
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Jan 26 2017 14:04:26 GMT+0300 (Russia TZ 2 Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Jan 27 2017 13:40:51 GMT+0300 (Russia TZ 2 Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

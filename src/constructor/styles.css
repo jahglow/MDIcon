@@ -1,6 +1,6 @@
 :root{
   --app-width: 1161px;
-  --bottom-sheet-height:56px
+  --bottom-sheet-height:96px
 }
 
 *{
@@ -69,8 +69,19 @@
     display: flex;
     flex-direction: row;
   }
-  &--download-code,
-  &--view{
+
+  &--code{
+    overflow: scroll;
+    width: 100%;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  }
+}
+
+.IconApp{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  &--action-icon{
     width:32px;
     height: 32px;
     display:flex;
@@ -91,16 +102,6 @@
       }
     }
   }
-  &--code{
-    overflow: scroll;
-    width: 100%;
-    font-family: Consolas, Monaco, 'Andale Mono', monospace;
-  }
-}
-.IconApp{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 
   & pre {
     padding: 8px;
@@ -136,6 +137,10 @@
     padding:8px;
     box-sizing:border-box;
 
+    & label {
+      display: block;
+      font-size:12px;
+    }
     & pre{
       display: flex;
       flex: 1;
@@ -157,6 +162,13 @@
       font-family: Consolas, Monaco, 'Andale Mono', monospace;
     }
   }
+  &--code{
+    flex:1;
+  }
+  &--action, &--code{
+    display:flex;
+    flex-direction: column;
+  }
   &--description{
     width:100%;
     max-width:var(--app-width);
@@ -165,8 +177,7 @@
     & h2 {
       font-size: 24px;
     }
-    & p {
-      display:block;
+    & p, & li {
       font-size:13px;
       font-weight: normal;
       line-height: 160%;
@@ -179,8 +190,8 @@
     }
   }
   &--copy{
-    height:calc( var(--bottom-sheet-height) - 8 * 2);
-    width:calc( var(--bottom-sheet-height) - 8 * 2);
+    height:calc( (var(--bottom-sheet-height) - 8 * 2) / 2);
+    width:calc( (var(--bottom-sheet-height) - 8 * 2) / 2);
   }
 }
 

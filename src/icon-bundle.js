@@ -14,6 +14,5 @@ import * as notification from './icons/notification';
 import * as places from './icons/places';
 import * as toggle from './icons/toggle';
 import * as social from './icons/social';
-import {MDIcon} from './MDIcon';
 
-export {MDIcon,action,alert,av,communication,content,device,editor,file,hardware,image,maps,navigation,notification,places, toggle, social};
+export {action,alert,av,communication,content,device,editor,file,hardware,image,maps,navigation,notification,places, toggle, social};

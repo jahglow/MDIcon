@@ -1,8 +1,7 @@
 {
-  "presets": ["latest"],
+  "presets": ["es2015"],
   "plugins": [
     "add-module-exports",
-    "transform-react-jsx",
-    "transform-object-rest-spread"
+    "transform-react-jsx"
   ]
 }

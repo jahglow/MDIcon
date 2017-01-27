@@ -11,11 +11,13 @@ Type `npm install --save jahglow/MDIcon` in your terminal.
 
 ## Material Icons: [React Import Generator](https://jahglow.github.io/MDIcon/constructor)
 
-This is an Import generator that makes using Google Material Icons easy. Instead of going to their site and downloading an icon each time you need to include it in your project,
-you may use this tool that will return you a valid code for importing only necessary icons in your project. Basically each icon is a <code>MDIcon</code> React component,
-that you may configure with parameters.
+This is an Import Generator that makes using Google Material Icons easy. Instead of going to [their site](https://material.io/icons) and downloading one icon at a time every time you need to include it in your project,
+use this tool that will return you a valid code for importing only necessary icons in your project as well as a bundle with the icons you select. This can be achieved in four simple steps:
 
-Select the necessary icons from Generator, copy the code (via copy button) and paste it in your react document file!
+1. Select all icons you need for your project</li>
+2. In the bottom sheet specify the path from root where you'll place the icons bundle. Note that the path is relative to the document where you'll use the icons.</li>
+3. Click the <code>download</code> icon to download the bundle. Place it according to the path you've specified in step 2.</li>
+4. Click the <code>copy</code> icon to copy the import code. Paste it into your file where you'll use the icons. We've already destructured the import for you</li>
 
 If you want to see what it exactly looks like from inside in ES6, then press a code button next to each section. If you feel like this project is outdated (there are missing icons that are available on
 [MD icons site](https://material.io/icons)) then feel free to fork it and press the download button next to the section you want to update. It will initiate a download for the file that you may

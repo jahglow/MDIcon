@@ -3,7 +3,7 @@ class IconStripper {
     this.iconset = {};
     this.requestSource(iconset)
       .then(response=>this.parseResponse(response,iconset))
-      .then(result=>callback(result))
+      .then(result=>callback(iconset,result))
   }
 
   parseResponse(response,iconset){
@@ -15,7 +15,7 @@ class IconStripper {
       result[matched[2]] = matched[4];
     }
     let file = this.stripper(result),
-        blobURL = this.blobFile(file);
+        blobURL = this.blobFile(file.str);
     this.iconset = {file, blobURL};
     return this.iconset
 
@@ -42,18 +42,21 @@ class IconStripper {
   }
 
   stripper(icons){
-    let str = `import React from 'react'; \n \n`;
-    //[...SVGElement.children].forEach(symbol=>{
+    let str = [],
+        obj = {};
+
     Object.keys(icons).forEach(icon=>{
       let id = (/(.+?)_24/gi).exec(icon)[1];
       let rawIcon = icons[icon];
       let goodPath = rawIcon//.replace(/><\/{path|circle}>/gi,' />')           // replace `</path>` with `/>`
                                      .replace(/fill-opacity/gi,'fillOpacity') // replace dashed-attributes with camelCase
-                                     .replace(/fill="(.+?)"/gi,'');           // remove explicit fills
-      str+=`export const ${id} = ${goodPath.match(/[/*]/g).length==1?goodPath:'<g>'+goodPath+'</g>'}; \n`;
-      //str+=`export const ${id} = ${rawIcon.children.length==1?goodPath:'<g>'+goodPath+'</g>'}; \n`;
+                                     .replace(/fill="(.+?)"/gi,'');           // remove explicit fills\
+      goodPath = goodPath.match(/[/*]/g).length==1?goodPath:'<g>'+goodPath+'</g>';
+      str.push(`export const ${id} = ${goodPath};`);
+      obj[id] = goodPath;
+      //str+=`export const ${id} = ${goodPath.match(/[/*]/g).length==1?goodPath:'<g>'+goodPath+'</g>'}; \n`;
     });
-    return str;
+    return {str:str.join('\n'),obj}
   }
 }
 

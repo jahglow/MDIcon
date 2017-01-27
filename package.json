@@ -1,8 +1,8 @@
 {
   "name": "MDIcon",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MDIcon is a tool that lets you embed only the necessary set of material icons in your project and returns a valid SVG",
-  "main": "src/main.js",
+  "main": "dist/MDIcon.bundle.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConfirmitASA/MDIcon.git"
@@ -14,7 +14,7 @@
     "clean": "rimraf dist build",
     "lint": "eslint src",
     "docs": "node_modules/.bin/jsdoc --configure jsdoc.conf --verbose",
-    "docs-commit": "git subtree push --prefix docs/MDIcon/0.1.0 origin gh-pages",
+    "docs-commit": "git subtree push --prefix docs/MDIcon/0.1.1 origin gh-pages",
     "test": "karma start --single-run --no-auto-watch karma.config.js",
     "report-coverage": "codecov -f coverage/lcov.info"
   },
@@ -30,8 +30,7 @@
     "babel-loader": "^6.2.4",
     "babel-plugin-add-module-exports": "^0.1.2",
     "babel-plugin-istanbul": "^2.0.1",
-    "babel-plugin-transform-object-rest-spread": "^6.22.0",
-    "babel-preset-latest": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
     "babel-preset-react": "^6.16.0",
     "codecov": ">1.0.0",
     "css-loader": "^0.23.1",
