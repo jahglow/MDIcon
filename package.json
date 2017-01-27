@@ -2,7 +2,7 @@
   "name": "MDIcon",
   "version": "0.1.1",
   "description": "MDIcon is a tool that lets you embed only the necessary set of material icons in your project and returns a valid SVG",
-  "main": "dist/MDIcon.bundle.js",
+  "main": "src/main.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConfirmitASA/MDIcon.git"
