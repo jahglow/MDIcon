@@ -1,3 +1,5 @@
+import Promise from 'core-js/library/es6/promise';
+
 class IconStripper {
   constructor(iconset,callback){
     this.iconset = {};

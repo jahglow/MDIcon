@@ -1,7 +1,8 @@
 var webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-var packageJSON = require('../package.json');
-var name = packageJSON["name"];
+var packageJSON = require('../../package.json');
+var name = "IconApp";
+
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',

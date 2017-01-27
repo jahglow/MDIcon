@@ -11,6 +11,8 @@
     "build": "npm run clean && npm run build:prd",
     "build:dev": "node_modules/.bin/webpack --config tools/webpack.config.dev.js --progress --colors",
     "build:prd": "node_modules/.bin/webpack --config tools/webpack.config.prd.js --progress --colors",
+    "build-demo:dev": "node_modules/.bin/webpack --config demo/tools/webpack.config.dev.js --progress --colors",
+    "build-demo:prd": "node_modules/.bin/webpack --config demo/tools/webpack.config.prd.js --progress --colors",
     "clean": "rimraf dist build",
     "lint": "eslint src",
     "docs": "node_modules/.bin/jsdoc --configure jsdoc.conf --verbose",
@@ -67,5 +69,10 @@
   },
   "peerDependencies": {
     "react": "^15.4.2"
-  }
+  },
+  "dependencies": {
+    "core-js": "^2.4.1",
+    "react-dom": "^15.4.2"
+  },
+  "files": ["src", "dist"]
 }

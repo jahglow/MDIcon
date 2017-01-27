@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-var packageJSON = require('../package.json');
-var name = packageJSON["name"];
+var packageJSON = require('../../package.json');
+var name = "IconApp";
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -21,11 +21,15 @@ config.module.loaders.push({
   //exclude: /node_modules/,
   loader:  ExtractTextPlugin.extract("style","css!postcss")
 });
-config.devtool = 'inline-source-map';
+
+config.devtool = 'source-map';
 config.plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.DefinePlugin({
-    'process.env.NODE_ENV': JSON.stringify('development'),
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  }),
+  new webpack.optimize.UglifyJsPlugin({
+    compressor: { warnings: false }, output: {comments: false}
   }),
   new ExtractTextPlugin(name+'.css')
 ];
@@ -37,10 +41,11 @@ config.postcss =  function (webpack) {
     require("postcss-apply")(),
     require("postcss-cssnext")({
       browsers:AUTOPREFIXER_BROWSERS
-    })
+    }),
+    require('cssnano')()
   ];
-};
-config.watch=true;
+}
 
 
 module.exports = config;
+

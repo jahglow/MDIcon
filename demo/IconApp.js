@@ -5,10 +5,10 @@ import styles from './styles.css';
 import IconStripper from './stripper';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Test from './test'
+//import Test from './test'
 
-import * as icons from '../icon-bundle';
-import {MDIcon} from '../MDIcon';
+import * as icons from './icon-bundle';
+import {MDIcon} from '../src/MDIcon';
 
 const iconsets = ['Action','Alert','AV','Communication','Content','Device','Editor','File','Hardware','Image','Maps','Navigation','Notification','Places','Social','Toggle'];
 

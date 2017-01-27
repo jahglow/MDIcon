@@ -1,13 +1,14 @@
-var packageJSON = require('../package.json');
+var packageJSON = require('../../package.json');
 var name = packageJSON["name"];
+var version = packageJSON["version"];
 
 module.exports = {
   entry: {
-    "MDIcon.bundle":"./src/main.js"
+    js:'./demo/IconApp.js'
   },
   output: {
-    path: "./dist",
-    filename: "[name].js"
+    path: "./docs/"+name+"/"+version+"/constructor",
+    filename: "IconApp.js"
   },
   module: {
     loaders: [{
@@ -23,6 +24,7 @@ module.exports = {
     ],
   },
   externals:{
-    'react':'React'
+    'react':'React',
+    'react-dom':'ReactDOM'
   }
 };

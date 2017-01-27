@@ -28,7 +28,6 @@ config.plugins = [
   new webpack.DefinePlugin({
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
-  new webpack.optimize.CommonsChunkPlugin({name: 'constructor.bundle', children: true}),
   new webpack.optimize.UglifyJsPlugin({
     compressor: { warnings: false }, output: {comments: false}
   }),
