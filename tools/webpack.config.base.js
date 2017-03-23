@@ -7,7 +7,11 @@ module.exports = {
   },
   output: {
     path: "./dist",
-    filename: "[name].js"
+    filename: "[name].js",
+    libraryTarget: 'umd'
+  },
+  externals:{
+    'react':'react',
   },
   module: {
     loaders: [{
@@ -22,7 +26,4 @@ module.exports = {
       '.js',
     ],
   },
-  externals:{
-    'react':'React'
-  }
 };
